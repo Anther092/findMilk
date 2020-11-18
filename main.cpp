@@ -83,6 +83,7 @@ public:
 class ServiceHere : public Thing {
 public:
     string getIdStr() override { return "ServiceHere"; }
+    int getIdInt() override { return 2134; }
 };
 
 struct Point
@@ -185,7 +186,7 @@ void breakWall(int oldX, int oldY, vector<Point>& path, vector<vector<Thing*>> &
 }
 
 
-void makeMaze(vector<vector<Thing*>>& labirinth, int r, int c) {
+void makeMaze(vector<vector<Thing*>> &labirinth, int r, int c) {
     int allUnvisited = ((r - 1) / 2) * ((c - 1) / 2) - 1;
 
     auto* iHere = new ServiceHere;
@@ -224,14 +225,17 @@ void makeMaze(vector<vector<Thing*>>& labirinth, int r, int c) {
     {
         for (int j = 0; j < c; j++)
         {
-            Space s;
-            if (labirinth[i][j]->getIdStr() == "serviceHere") labirinth[i][j] = &s;
+
+            if (labirinth[i][j]->getIdStr() == "ServiceHere") {
+                auto* s = new Space;
+                labirinth[i][j] = s;
+            }
         }
     }
-    Enter en;
-    labirinth[1][0] = &en;
-    Exit ex;
-    labirinth[r - 2][c - 1] = &ex;
+    auto* en = new Enter;
+    labirinth[1][0] = en;
+    auto* ex = new Exit;
+    labirinth[r - 2][c - 1] = ex;
 
     //milkGenerator(labirinth, r, c);
 }
@@ -255,7 +259,7 @@ int main() {
     const int r = 3;
     const int c = 3;
     vector<vector<Thing*>> labirinth = createTemplateMaze(r, c);
-    //makeMaze(labirinth, r, c);
+    makeMaze(labirinth, r, c);
     printLab(labirinth, r, c);
 
     return 0;

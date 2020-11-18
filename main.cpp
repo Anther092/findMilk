@@ -32,6 +32,7 @@ private:
 
 public:
     string getIdStr() override { return "Space"; }
+    static string staticGetIdStr() { return "Space"; }
     int getIdInt() override { return 0; }
 
     void action() override
@@ -83,6 +84,7 @@ public:
 class ServiceHere : public Thing {
 public:
     string getIdStr() override { return "ServiceHere"; }
+    static string staticGetIdStr() { return "ServiceHere"; }
     int getIdInt() override { return 2134; }
 };
 
@@ -157,7 +159,8 @@ vector<Point> findNeighbors(int nowX, int nowY, int r, int c, const vector<vecto
     {
         if (IsInside(coor[i], r, c)) {
 
-            if (lab[coor[i].y][coor[i].x]->getIdStr() == "Space") neighbors.emplace_back( coor[i].x, coor[i].y );
+            if (lab[coor[i].y][coor[i].x]->getIdStr() == Space::staticGetIdStr())
+                neighbors.emplace_back( coor[i].x, coor[i].y );
         }
     }
 
@@ -226,7 +229,7 @@ void makeMaze(vector<vector<Thing*>> &labirinth, int r, int c) {
         for (int j = 0; j < c; j++)
         {
 
-            if (labirinth[i][j]->getIdStr() == "ServiceHere") {
+            if (labirinth[i][j]->getIdStr() == ServiceHere::staticGetIdStr()) {
                 auto* s = new Space;
                 labirinth[i][j] = s;
             }

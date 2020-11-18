@@ -1,0 +1,3 @@
+C:/Users/135nn/CLionProjects/findMilk/cmake-build-debug/CMakeFiles/findMilk.dir
+C:/Users/135nn/CLionProjects/findMilk/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/135nn/CLionProjects/findMilk/cmake-build-debug/CMakeFiles/rebuild_cache.dir

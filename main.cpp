@@ -4,119 +4,39 @@
 #include <string>
 using namespace std;
 
-class Thing {
-private:
+void milkGenerator(vector<vector<int>>& lab, int r, int c);
 
-public:
-    virtual void action(){};
-
-    virtual string getIdStr() { return "Thing"; }
-    virtual int getIdInt() { return -1; }
-};
-
-class Milk : public Thing {
-private:
-
-public:
-    string getIdStr() override { return "Milk"; }
-    int getIdInt() override { return 4; }
-
-    void action() override
-    {
-        cout << "drink\n";
-    }
-};
-
-class Space : public Thing {
-private:
-
-public:
-    string getIdStr() override { return "Space"; }
-    static string staticGetIdStr() { return "Space"; }
-    int getIdInt() override { return 0; }
-
-    void action() override
-    {
-
-    }
-};
-
-class Wall : public Thing {
-private:
-
-public:
-    string getIdStr() override { return "Wall"; }
-    int getIdInt() override { return 1; }
-
-    void action() override
-    {
-
-    }
-};
-
-class Enter : public Thing {
-private:
-
-public:
-    string getIdStr() override { return "Enter"; }
-    int getIdInt() override { return 2; }
-
-    void action() override
-    {
-
-    }
-};
-
-class Exit : public Thing {
-private:
-
-public:
-    string getIdStr() override { return "Exit"; }
-    int getIdInt() override { return 3; }
-
-    void action() override
-    {
-
-    }
-};
-
-
-class ServiceHere : public Thing {
-public:
-    string getIdStr() override { return "ServiceHere"; }
-    static string staticGetIdStr() { return "ServiceHere"; }
-    int getIdInt() override { return 2134; }
-};
 
 struct Point
 {
     int x;
     int y;
-    Point()= default;
+    Point(){}
     Point(int x, int y) {
         this->x = x;
         this->y = y;
     }
 };
 
-void printLab(vector<vector<Thing*>> &lab, int r, int c) {
+void printLab(vector<vector<int>> &lab, int r, int c) {
     for (int i = 0; i < r; i++)
     {
         for (int j = 0; j < c; j++)
         {
-            cout << lab[i][j]->getIdInt() << " ";
+            cout << lab[i][j] << " ";
         }
         cout << endl;
     }
 }
 
-vector<vector<Thing*>> createTemplateMaze(int r, int c) {
-    vector<vector<Thing*>> lab(r, vector<Thing*>(c));
-    for (int i = 0; i < r; ++i) {
-        for (int j = 0; j < c; ++j) {
-            auto* w = new Wall;
-            lab[i][j] = w;
-        }
+vector<vector<int>> createMat(int r, int c) {
+
+    vector<vector<int>> lab;
+
+    for (int i = 0; i < r; i++)
+    {
+        vector<int> temp(c, 1);
+        lab.push_back(temp);
     }
 
     for (int i = 0; i < r; i++)
@@ -126,25 +46,26 @@ vector<vector<Thing*>> createTemplateMaze(int r, int c) {
             for (int j = 0; j < c; j++)
             {
                 if ((j % 2) != 0) {
-                    auto* s = new Space;
-                    lab[i][j] = s;
+
+                    lab[i][j] = 0;
                 }
             }
         }
     }
+
     return lab;
 }
 
-bool IsInside(Point p, int r, int c) {
-    if (p.x < 0) return false;
-    if (p.x >= c) return false;
-    if (p.y < 0) return false;
-    if (p.y >= r) return false;
+bool IsInside(int x, int y, int r, int c) {
+    if (x < 0) return false;
+    if (x >= c) return false;
+    if (y < 0) return false;
+    if (y >= r) return false;
     return true;
 }
 
-vector<Point> findNeighbors(int nowX, int nowY, int r, int c, const vector<vector<Thing*>>& lab) {
-    vector<Point> neighbors;
+vector<vector<int>> findNeighbors(int nowX, int nowY, int r, int c, vector<vector<int>> lab) {
+    vector<vector<int>> neighbors;
 
     int x = nowX;
     int y = nowY;
@@ -157,70 +78,64 @@ vector<Point> findNeighbors(int nowX, int nowY, int r, int c, const vector<vecto
 
     for (int i = 0; i < 4; i++)
     {
-        if (IsInside(coor[i], r, c)) {
+        if (IsInside(coor[i].x, coor[i].y, r, c)) {
 
-            if (lab[coor[i].y][coor[i].x]->getIdStr() == Space::staticGetIdStr())
-                neighbors.emplace_back( coor[i].x, coor[i].y );
+            if (lab[coor[i].y][coor[i].x] == 0) neighbors.push_back({ coor[i].x, coor[i].y });
         }
     }
 
     return neighbors;
 }
 
-void breakWall(int oldX, int oldY, vector<Point>& path, vector<vector<Thing*>> &labirinth, vector<Point> &neighbors, int &allUnvisited) {
+void breakWall(int oldX, int oldY, vector<vector<int>> &path, vector<vector<int>> &labirinth, vector<vector<int>> &neighbors, int &allUnvisited) {
 
-    Point temp = neighbors[rand() % neighbors.size()];
+    vector<int> temp = neighbors[rand() % neighbors.size()];
 
-    int newX = temp.x;
-    int newY = temp.y;
-    Point vec = { (newX - oldX) / 2, (newY - oldY) / 2 };
+    int newX = temp[0];
+    int newY = temp[1];
+    vector<int> vec = { (newX - oldX) / 2, (newY - oldY) / 2 };
 
-    auto* iHere = new ServiceHere;
-    labirinth[newY][newX] = iHere;
-    auto* s0 = new Space;
-    labirinth[oldY][oldX] = s0;
-    auto* s1 = new Space;
-    labirinth[oldY + vec.y][oldX + vec.x] = s1;
-    path.emplace_back( oldX + vec.x, oldY + vec.y );
+    labirinth[newY][newX] = 3;
+    labirinth[oldY][oldX] = 2;
+    labirinth[oldY + vec[1]][oldX + vec[0]] = 2;
+    path.push_back({ oldX + vec[0], oldY + vec[1] });
     path.push_back(temp);
     allUnvisited--;
 
     neighbors.clear();
 }
 
-
-void makeMaze(vector<vector<Thing*>> &labirinth, int r, int c) {
+void makeMaze(vector<vector<int>>& labirinth, int r, int c) {
     int allUnvisited = ((r - 1) / 2) * ((c - 1) / 2) - 1;
 
-    auto* iHere = new ServiceHere;
-    labirinth[1][1] = iHere;
-    vector<Point> path = { {1, 1} };
-    vector<Point> coorNeighbors;
+    labirinth[1][1] = 3;
+    vector<vector<int>> path = { {1, 1} };
+    vector<vector<int>> neighbors;
 
     int nowX;
     int nowY;
     while (allUnvisited > 0)
     {
-        nowX = path[path.size() - 1].x;
-        nowY = path[path.size() - 1].y;
-        coorNeighbors = findNeighbors(nowX, nowY, r, c, labirinth);
+        nowX = path[path.size() - 1][0];
+        nowY = path[path.size() - 1][1];
+        neighbors = findNeighbors(nowX, nowY, r, c, labirinth);
 
-        if (coorNeighbors.empty() && (allUnvisited > 0)) {
+        if ((neighbors.size() == 0) & allUnvisited > 0) {
 
             for (int i = 2; i <= path.size(); i++)
             {
-                nowX = path[path.size() - i].x;
-                nowY = path[path.size() - i].y;
-                coorNeighbors = findNeighbors(nowX, nowY, r, c, labirinth);
+                nowX = path[path.size() - i][0];
+                nowY = path[path.size() - i][1];
+                neighbors = findNeighbors(nowX, nowY, r, c, labirinth);
 
-                if (!coorNeighbors.empty()) {
+                if (neighbors.size() > 0) {
 
-                    breakWall(nowX, nowY, path, labirinth, coorNeighbors, allUnvisited);
+                    breakWall(nowX, nowY, path, labirinth, neighbors, allUnvisited);
                 }
             }
         }
         else {
-            breakWall(nowX, nowY, path, labirinth, coorNeighbors, allUnvisited);
+            breakWall(nowX, nowY, path, labirinth, neighbors, allUnvisited);
         }
     }
 
@@ -228,42 +143,136 @@ void makeMaze(vector<vector<Thing*>> &labirinth, int r, int c) {
     {
         for (int j = 0; j < c; j++)
         {
+            if (labirinth[i][j] == 3) labirinth[i][j] = 2;
+        }
+    }
+    labirinth[1][0] = 0;
+    labirinth[r - 2][c - 1] = 3;
 
-            if (labirinth[i][j]->getIdStr() == ServiceHere::staticGetIdStr()) {
-                auto* s = new Space;
-                labirinth[i][j] = s;
+    milkGenerator(labirinth, r, c);
+}
+
+void whereIcanGo(vector<vector<int>>& lab, int r, int c, int x, int y) {
+
+    Point U(x + 0, y - 1);
+    Point R(x + 1, y + 0);
+    Point D(x + 0, y + 1);
+    Point L(x - 1, y + 0);
+    vector<Point> coor = { U, R, D, L };
+    vector<string> myWhere = { "up", "right", "down", "left" };
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (IsInside(coor[i].x, coor[i].y, r, c)) {
+            if (lab[coor[i].y][coor[i].x] != 1) {
+                cout << "you can go to " << myWhere[i] << endl;
+
             }
         }
     }
-    auto* en = new Enter;
-    labirinth[1][0] = en;
-    auto* ex = new Exit;
-    labirinth[r - 2][c - 1] = ex;
 
-    //milkGenerator(labirinth, r, c);
+
 }
-
-
 
 struct Hero
 {
     // possible add Point
-
+    int x = 0;
+    int y = 1;
 
     int countOfmilk = 0;
 };
 
+enum thingsInLab
+{
+    hero,
+    wall,
+    space,
+    exitOutOfLab,
+    milk
+};
+
+void youFindSomething(Point me, vector<vector<int>>& lab) {
+
+    if (lab[me.y][me.x] == thingsInLab::milk){
+        cout << "you find milk \n";
+    }
+}
+
+void milkGenerator(vector<vector<int>>& lab, int r, int c) {
+    int allCells = ((r - 1) / 2) * ((c - 1) / 2) - 1;
+    int allMilk = allCells / 10;
+    if (allMilk == 0) allMilk++;
+
+    while (allMilk > 0) {
+        int x = rand() % c;
+        int y = rand() % r;
+
+        if (lab[y][x] == space) {
+            lab[y][x] = milk;
+            allMilk--;
+        }
+    }
+}
 
 
 int main() {
     srand(time(0));
 
     // r and c must be odd
-    const int r = 3;
-    const int c = 3;
-    vector<vector<Thing*>> labirinth = createTemplateMaze(r, c);
+    const int r = 7;
+    const int c = 7;
+    vector<vector<int>> labirinth = createMat(r, c);
     makeMaze(labirinth, r, c);
     printLab(labirinth, r, c);
+    int allCells = ((r - 1) / 2) * ((c - 1) / 2) - 1;
+    int allMilk = allCells / 10;
+    if (allMilk == 0) allMilk++;
+
+    Hero me;
+
+    char input = ' ';
+    bool isOut = false;
+    while (input != 'q')
+    {
+        whereIcanGo(labirinth, r, c, me.x, me.y);
+        cin >> input;
+        Point p(0, 0);
+        if (input == 'u') {
+            p.x = me.x;
+            p.y = me.y - 1;
+        }
+        if (input == 'r') {
+            p.x = me.x + 1;
+            p.y = me.y;
+        }
+        if (input == 'd') {
+            p.x = me.x;
+            p.y = me.y + 1;
+        }
+        if (input == 'l') {
+            p.x = me.x - 1;
+            p.y = me.y;
+        }
+
+        if (labirinth[p.y][p.x] == exitOutOfLab) {
+            if (me.countOfmilk == allMilk) {
+                cout << "you find exit \n";
+                break;
+            }
+            else {
+                cout << "you find exit, but not all milk \n";
+            }
+        }
+        if (labirinth[p.y][p.x] == thingsInLab::milk) {
+            cout << "you find milk \n";
+            me.countOfmilk++;
+        }
+
+        me.x = p.x;
+        me.y = p.y;
+    }
+
 
     return 0;
 }
